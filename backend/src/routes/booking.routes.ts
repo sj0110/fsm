@@ -6,7 +6,7 @@ const router = Router();
 
 router.post('/', authenticate, authorize(['customer']), BookingController.create);
 
-router.put('/:uuid', authenticate, authorize(['serviceProvider', 'admin']), BookingController.update);
+router.put('/:id', authenticate, authorize(['serviceProvider', 'admin']), BookingController.update);
 
 router.get('/', authenticate, authorize(['customer', 'serviceProvider', 'admin']), BookingController.getBookings);
 

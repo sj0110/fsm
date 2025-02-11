@@ -1,5 +1,5 @@
 export interface User {
-  uuid: string; // Use UUID instead of _id
+  _id: string; 
   email: string;
   password: string;
   role: 'admin' | 'customer' | 'serviceProvider';
@@ -10,26 +10,25 @@ export interface User {
 }
 
 export interface Service {
-  uuid: string; // Use UUID instead of _id
+  _id: string; 
   name: string;
   description: string;
   duration: number; // in minutes
   price: number;
-  serviceProviderId: string; // Now references a UUID
+  serviceProviderId: string; // Now references an ObjectId
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface Booking {
-  uuid: string; // Use UUID instead of _id
-  customerId: string; // Now references a UUID
-  serviceId: string; // Now references a UUID
-  serviceProviderId: string; // Now references a UUID
+  _id: string; 
+  customerId: string; // Now references an ObjectId
+  serviceId: string; // Now references an ObjectId
+  serviceProviderId: string; // Now references an ObjectId
   status: 'pending' | 'confirmed' | 'inProgress' | 'completed' | 'cancelled';
   appointmentDate: Date;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
-

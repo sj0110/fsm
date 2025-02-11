@@ -1,16 +1,10 @@
 import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 import { Booking } from '../types';
 
 const bookingSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    default: uuidv4,
-    unique: true, // Ensures uniqueness
-  },
-  customerId: { type: String, required: true }, // UUID instead of ObjectId
-  serviceId: { type: String, required: true }, // UUID instead of ObjectId
-  serviceProviderId: { type: String, required: true }, // UUID instead of ObjectId
+  customerId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+  serviceId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Service' },
+  serviceProviderId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'inProgress', 'completed', 'cancelled'],

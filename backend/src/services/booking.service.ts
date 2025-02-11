@@ -1,5 +1,5 @@
-import { Booking } from '../types';
-import { BookingModel } from '../models/booking.model';
+import { BookingModel } from "../models/booking.model";
+import { Booking } from "../types";
 
 export class BookingService {
   static async create(bookingData: Partial<Booking>): Promise<Booking> {
@@ -12,23 +12,23 @@ export class BookingService {
     return await booking.save();
   }
 
-  static async update(uuid: string, updates: Partial<Booking>): Promise<Booking | null> {
-    return await BookingModel.findOneAndUpdate(
-      { id: uuid },
+  static async update(id: string, updates: Partial<Booking>): Promise<Booking | null> {
+    return await BookingModel.findByIdAndUpdate(
+      id,
       { ...updates, updatedAt: new Date() },
       { new: true }
     );
   }
 
-  static async getById(uuid: string): Promise<Booking | null> {
-    return await BookingModel.findOne({ id: uuid });
+  static async getById(id: string): Promise<Booking | null> {
+    return await BookingModel.findById(id);
   }
 
-  static async getByCustomer(customerUuid: string): Promise<Booking[]> {
-    return await BookingModel.find({ customerId: customerUuid });
+  static async getByCustomer(customerId: string): Promise<Booking[]> {
+    return await BookingModel.find({ customerId });
   }
 
-  static async getByServiceProvider(serviceProviderUuid: string): Promise<Booking[]> {
-    return await BookingModel.find({ serviceProviderId: serviceProviderUuid });
+  static async getByServiceProvider(serviceProviderId: string): Promise<Booking[]> {
+    return await BookingModel.find({ serviceProviderId });
   }
 }

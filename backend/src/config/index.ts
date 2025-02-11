@@ -1,9 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
-console.log(process.env.PORT);
-console.log(process.env.MONGO_URI);
-console.log(process.env.JWT_SECRET);
-console.log(process.env.NODE_ENV);
+// console.log(process.env.PORT);
+
 const config = {
   port: process.env.PORT || 3000,
   mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/service-booking',

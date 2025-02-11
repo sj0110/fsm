@@ -1,22 +1,16 @@
 import app from './app';
-import { UserModel } from './models/user.model';
+import mongoose from 'mongoose';
 import config from './config';
+import { createAdminUser } from './create.admin.user';
 
-async function createAdminUser() {
-  const adminExists = await UserModel.findOne({ role: 'admin' });
-  if (!adminExists) {
-    await UserModel.create({
-      name: 'Admin',
-      email: 'admin@ex.com',
-      password: '$2a$10$nzOWXIElTmRVdZEPuLiC2eb/TCY0ULIwUIqP1rt/P/8vqGv6FzUC2', // Password: hp123
-      role: 'admin',
+
+mongoose
+  .connect(config.mongoUri)
+  .then(async () => {
+    console.log('Connected to MongoDB');
+    await createAdminUser();
+    app.listen(config.port, () => {
+      console.log(`Server running on port ${config.port}`);
     });
-    console.log('Admin user created');
-  }
-}
-
-createAdminUser();
-
-app.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`);
-});
+  })
+  .catch((err) => console.error('MongoDB connection error:', err));

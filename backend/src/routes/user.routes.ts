@@ -6,9 +6,9 @@ const router = Router();
 
 // Admin only routes
 router.post('/', authenticate, authorize(['admin']), UserController.create);
-router.put('/:uuid', authenticate, authorize(['admin']), UserController.update);
-router.delete('/:uuid', authenticate, authorize(['admin']), UserController.delete);
+router.put('/:id', authenticate, authorize(['admin']), UserController.update);
+router.delete('/:id', authenticate, authorize(['admin']), UserController.delete);
 router.get('/', authenticate, authorize(['admin']), UserController.getAll);
-router.get('/:uuid', authenticate, authorize(['admin']), UserController.getById);
+router.get('/:id', authenticate, authorize(['admin']), UserController.getById);
 
 export default router;

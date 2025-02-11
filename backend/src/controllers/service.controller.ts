@@ -5,7 +5,7 @@ export class ServiceController {
   static async create(req: Request, res: Response): Promise<void> {
     try {
       if (!req.body.serviceProviderId) {
-        res.status(400).json({ message: 'serviceProviderId (UUID) is required' });
+        res.status(400).json({ message: 'serviceProviderId is required' });
         return;
       }
 
@@ -17,15 +17,16 @@ export class ServiceController {
     }
   }
 
+
   static async update(req: Request, res: Response): Promise<void> {
     try {
-      const { uuid } = req.params;
-      if (!uuid) {
-        res.status(400).json({ message: 'UUID is required' });
+      const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ message: 'ID is required' });
         return;
       }
 
-      const service = await ServiceService.update(uuid, req.body);
+      const service = await ServiceService.update(id, req.body);
       if (!service) {
         res.status(404).json({ message: 'Service not found' });
         return;
@@ -37,15 +38,17 @@ export class ServiceController {
     }
   }
 
+
+
   static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { uuid } = req.params;
-      if (!uuid) {
-        res.status(400).json({ message: 'UUID is required' });
+      const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ message: 'ID is required' });
         return;
       }
 
-      await ServiceService.delete(uuid);
+      await ServiceService.delete(id);
       res.status(204).send();
     } catch (error) {
       const err = error as Error;
@@ -65,13 +68,13 @@ export class ServiceController {
 
   static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const { uuid } = req.params;
-      if (!uuid) {
-        res.status(400).json({ message: 'UUID is required' });
+      const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ message: 'ID is required' });
         return;
       }
 
-      const service = await ServiceService.getById(uuid);
+      const service = await ServiceService.getById(id);
       if (!service) {
         res.status(404).json({ message: 'Service not found' });
         return;

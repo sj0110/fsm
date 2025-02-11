@@ -8,13 +8,14 @@ export interface AuthRequest extends Request {
     user?: User;
 }
 
-export const dummyMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-    console.log('dummy middleware');
-    next()
-}
+// export const dummyMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+//     console.log('dummy middleware');
+//     next()
+// }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
+        // console.log(req.headers.authorization?.split(' ')[1])
         const token = req.headers.authorization?.split(' ')[1];
 
         if (!token) {
@@ -28,9 +29,10 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
         }
         const decoded = jwt.verify(token, config.jwtSecret) as User;
         req.user = decoded;
+        // console.log(decoded);
         next();
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.status(401).json({ message: 'Invalid token' });
         return;
     }
