@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { BookingController } from '../controllers/booking.controller';
+import { authenticate, authorize } from '../middlewares/auth.middleware';
+
+const router = Router();
+
+router.post('/', authenticate, authorize(['customer']), BookingController.create);
+
+router.put('/:uuid', authenticate, authorize(['serviceProvider', 'admin']), BookingController.update);
+
+router.get('/', authenticate, authorize(['customer', 'serviceProvider', 'admin']), BookingController.getBookings);
+
+export default router;
