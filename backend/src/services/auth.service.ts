@@ -30,6 +30,7 @@ export class AuthService {
     try {
       // Decode token to get expiration
       const decoded = jwt.decode(token) as { exp: number };
+      // console.log(decoded); 
       if (!decoded?.exp) {
         throw new Error('Invalid token');
       }
