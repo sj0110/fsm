@@ -8,7 +8,7 @@ export const createAdminUser = async () => {
           const hashedPassword = await bcrypt.hash('hp123', 10); // Hash password before storing
           await UserModel.create({
             name: 'Admin',
-            email: 'admin@ex.com',
+            email: 'h',
             password: hashedPassword,
             role: 'admin',
           });

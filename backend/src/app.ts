@@ -13,9 +13,12 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Default to localhost if not set
+  credentials: true, // Allows cookies and authentication headers
+}));
 app.use(express.json());
-app.use(rateLimiter);
+// app.use(rateLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);

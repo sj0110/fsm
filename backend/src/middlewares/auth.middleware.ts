@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import  config from '../config/index';
 import { User } from '../types/index';
 import { AuthService } from '../services/auth.service';
+import { UserModel } from '../models/user.model';
 
 export interface AuthRequest extends Request {
     user?: User;
@@ -15,26 +16,35 @@ export interface AuthRequest extends Request {
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-        // console.log(req.headers.authorization?.split(' ')[1])
         const token = req.headers.authorization?.split(' ')[1];
 
         if (!token) {
             res.status(401).json({ message: 'Authentication required' });
             return;
         }
+
         // Check if token is blacklisted
         const isBlacklisted = await AuthService.isTokenBlacklisted(token);
         if (isBlacklisted) {
             res.status(401).json({ message: 'Token has been invalidated' });
+            return;
         }
-        const decoded = jwt.verify(token, config.jwtSecret) as User;
-        req.user = decoded;
-        console.log(decoded);
+
+        // Decode token to extract user ID
+        const decoded = jwt.verify(token, config.jwtSecret) as { _id: string };
+
+        // Fetch user details from the database
+        const user = await UserModel.findById(decoded._id).select('-password');
+        if (!user || !user.active) {
+            res.status(401).json({ message: 'User not found or inactive' });
+            return;
+        }
+
+        // Attach the fresh user details to the request object
+        req.user = user;
         next();
     } catch (error) {
-        // console.log(error);
         res.status(401).json({ message: 'Invalid token' });
-        return;
     }
 };
 
