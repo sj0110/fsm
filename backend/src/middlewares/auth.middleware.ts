@@ -42,6 +42,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
 
         // Attach the fresh user details to the request object
         req.user = user;
+        console.log(user);
         next();
     } catch (error) {
         res.status(401).json({ message: 'Invalid token' });
