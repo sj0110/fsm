@@ -1,22 +1,42 @@
 import { BookingModel } from "../models/booking.model";
 import { ServiceModel } from "../models/service.model";
+import { UserModel } from "../models/user.model";
 import { Service } from "../types";
 
 
 export class ServiceService {
   static async create(serviceData: Partial<Service>): Promise<Service> {
     if (!serviceData.serviceProviderId) {
-      throw new Error('serviceProviderId is required');
+      throw new Error("serviceProviderId is required");
     }
 
-    const service = new ServiceModel(serviceData);
+    // Validate service provider existence
+    const serviceProvider = await UserModel.findOne({ _id: serviceData.serviceProviderId, active: true });
+    if (!serviceProvider) {
+      throw new Error("Invalid serviceProviderId: Service provider not found or inactive.");
+    }
+
+    const service = new ServiceModel({
+      ...serviceData,
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
     return await service.save();
   }
 
   static async update(serviceId: string, serviceData: Partial<Service>): Promise<Service | null> {
-    const updatedService = await ServiceModel.findByIdAndUpdate(serviceId, serviceData, { new: true });
+    const updatedService = await ServiceModel.findOneAndUpdate(
+        { _id: serviceId, active: true },  // Only update if the service is active
+        { ...serviceData, updatedAt: new Date() }, // Update 'updatedAt' field
+        { new: true }
+    );
     if (updatedService) {
-      await BookingModel.updateMany({ serviceId }, { serviceName: updatedService.name });
+        await BookingModel.updateMany(
+            { serviceId }, 
+            { serviceName: updatedService.name, updatedAt: new Date() } // Update 'updatedAt' in bookings as well
+        );
     }
     return updatedService;
   }
@@ -26,7 +46,7 @@ export class ServiceService {
     if (existingBookings.length > 0) {
       throw new Error('Service cannot be deleted because it has active bookings. Delete the bookings first.');
     }
-    await ServiceModel.findByIdAndDelete(serviceId);
+    await ServiceModel.findByIdAndUpdate(serviceId, { active: false, deletedAt: new Date()});
   }
 
   static async getAll(filters: any = {}): Promise<Service[]> {

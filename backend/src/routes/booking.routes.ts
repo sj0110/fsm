@@ -10,5 +10,6 @@ router.put('/:id', authenticate, authorize(['serviceProvider', 'admin']), Bookin
 
 router.get('/', authenticate, authorize(['customer', 'serviceProvider', 'admin']), BookingController.getBookings);
 
+router.get('/:id', authenticate, authorize(['customer', 'admin']), BookingController.deleteBooking);
 
 export default router;

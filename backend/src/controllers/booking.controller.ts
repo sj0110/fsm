@@ -59,5 +59,29 @@ export class BookingController {
       res.status(401).json({ message: err.message });
     }
   }
+
+  static async deleteBooking(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const user = req.user;
+
+      const booking = await BookingService.getById(id);
+      if (!booking) {
+        res.status(404).json({ message: 'Booking not found' });
+        return;
+      }
+
+      if (user?.role !== 'admin' && (booking.customerId.toString() !== user?._id.toString() || booking.status !== 'pending')) {
+        res.status(403).json({ message: 'Unauthorized to delete this booking' });
+        return;
+      }
+
+      await BookingService.delete(id);
+      res.status(200).json({ message: 'Booking deleted successfully' });
+    } catch (error) {
+      const err = error as Error;
+      res.status(401).json({ message: err.message });
+    }
+  }
 }
 

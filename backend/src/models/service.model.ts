@@ -9,7 +9,10 @@ const serviceSchema = new mongoose.Schema({
   serviceProviderId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
   active: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-});
+  updatedAt: { type: Date, default: Date.now },
+  deletedAt: { type: Date, default: null }
+  },
+  { timestamps: true }
+);
 
 export const ServiceModel = mongoose.model<Service & mongoose.Document>('Service', serviceSchema);
