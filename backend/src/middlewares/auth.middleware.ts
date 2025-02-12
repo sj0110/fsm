@@ -29,7 +29,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
         }
         const decoded = jwt.verify(token, config.jwtSecret) as User;
         req.user = decoded;
-        // console.log(decoded);
+        console.log(decoded);
         next();
     } catch (error) {
         // console.log(error);
@@ -41,7 +41,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
 
 export const authorize = (roles: string[]) => {
     return (req: AuthRequest, res: Response, next: NextFunction): void => {
-        console.log(req.user)
+        // console.log(req.user)
         if (!req.user || !roles.includes(req.user.role)) {
             res.status(403).json({ message: 'Unauthorized' });
             return;

@@ -5,23 +5,25 @@ import { BookingService } from '../services/booking.service';
 export class BookingController {
   static async create(req: AuthRequest, res: Response): Promise<void> {
     try {
-      // console.log('Authenticated User:', req.user);
       if (!req.user?._id) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
       }
-
-      const booking = await BookingService.create({
-        ...req.body,
-        customerId: req.user._id
-      });
-
+  
+      const { serviceId, appointmentDate, notes } = req.body;
+      if (!serviceId || !appointmentDate) {
+        res.status(400).json({ message: 'Service ID and appointment date are required' });
+        return;
+      }
+  
+      const booking = await BookingService.create({ serviceId, appointmentDate, notes }, req.user._id);
       res.status(201).json(booking);
     } catch (error) {
-      const err = error as Error;
-      res.status(401).json({ message: err.message });
+      res.status(400).json({ message: (error as Error).message });
     }
   }
+  
+
 
   static async update(req: AuthRequest, res: Response): Promise<void> {
     try {

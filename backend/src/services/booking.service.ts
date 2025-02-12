@@ -4,35 +4,41 @@ import { UserModel } from "../models/user.model";
 import { Booking } from "../types";
 
 export class BookingService {
-  static async create(bookingData: Partial<Booking>): Promise<Booking> {
+  static async create(bookingData: { serviceId: string; appointmentDate: Date; notes?: string }, customerId: string): Promise<Booking> {
     // Validate customer existence
-    const customer = await UserModel.findOne({ _id: bookingData.customerId, active: true });
+    const customer = await UserModel.findOne({ _id: customerId, active: true });
     if (!customer) {
-      throw new Error("Invalid customerId: Customer not found or inactive.");
+      throw new Error("Invalid customer: Customer not found or inactive.");
     }
-
-    // Validate service existence
+  
+    // Validate service existence and fetch service provider ID
     const service = await ServiceModel.findOne({ _id: bookingData.serviceId, active: true });
     if (!service) {
       throw new Error("Invalid serviceId: Service not found or inactive.");
     }
-
+  
     // Validate service provider existence
-    const serviceProvider = await UserModel.findOne({ _id: bookingData.serviceProviderId, active: true });
+    const serviceProvider = await UserModel.findOne({ _id: service.serviceProviderId, active: true });
     if (!serviceProvider) {
-      throw new Error("Invalid serviceProviderId: Service provider not found or inactive.");
+      throw new Error("Invalid service provider: Not found or inactive.");
     }
-
+  
     const booking = new BookingModel({
-      ...bookingData,
+      serviceId: bookingData.serviceId,
+      serviceProviderId: service.serviceProviderId,
+      customerId,
+      appointmentDate: bookingData.appointmentDate,
+      notes: bookingData.notes,
       status: 'pending',
       active: true,
       createdAt: new Date(),
       updatedAt: new Date()
     });
-
+  
     return await booking.save();
   }
+  
+
 
   static async update(id: string, updates: Partial<Booking>): Promise<Booking | null> {
     return await BookingModel.findOneAndUpdate(
