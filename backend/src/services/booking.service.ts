@@ -56,6 +56,10 @@ export class BookingService {
     return await BookingModel.find({ customerId, active: true });  // Fetch only active bookings
   }
 
+  static async getAll(): Promise<Booking[]> {
+    return await BookingModel.find({ active: true });  // Fetch only active bookings
+  }
+
   static async getByServiceProvider(serviceProviderId: string): Promise<Booking[]> {
     return await BookingModel.find({ serviceProviderId, active: true });  // Fetch only active bookings
   }

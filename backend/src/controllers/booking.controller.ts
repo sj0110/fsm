@@ -28,12 +28,33 @@ export class BookingController {
   static async update(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const user = req.user;
+      
       if (!id) {
         res.status(400).json({ message: 'ID is required' });
         return;
       }
 
-      const booking = await BookingService.update(id, req.body);
+      let booking = await BookingService.getById(id);
+
+      if (!booking) {
+        res.status(404).json({ message: 'Booking not found' });
+        return;
+      }
+
+      if(user?.role.toString() === 'customer' && (booking.customerId.toString() !== user?._id.toString() || booking.status.toString() !== 'pending'))
+      {
+        res.status(403).json({ message: 'You cannot update this booking' });
+        return;
+      }
+
+      if(user?.role.toString() === 'customer')
+      {
+        booking = await BookingService.update(id, {status: 'cancelled'})
+      }
+
+
+      await BookingService.update(id, req.body);
       if (!booking) {
         res.status(404).json({ message: 'Booking not found' });
         return;
@@ -53,7 +74,7 @@ export class BookingController {
       } else if (req.user?.role === 'serviceProvider') {
         bookings = await BookingService.getByServiceProvider(req.user._id);
       } else {
-        bookings = await BookingService.getByCustomer(req.params.customerId);
+        bookings = await BookingService.getAll();
       }
       res.json(bookings);
     } catch (error) {
@@ -70,11 +91,6 @@ export class BookingController {
       const booking = await BookingService.getById(id);
       if (!booking) {
         res.status(404).json({ message: 'Booking not found' });
-        return;
-      }
-
-      if (user?.role !== 'admin' && (booking.customerId.toString() !== user?._id.toString() || booking.status !== 'pending')) {
-        res.status(403).json({ message: 'Unauthorized to delete this booking' });
         return;
       }
 
