@@ -55,18 +55,19 @@ export class UserService {
   }
 
   static async delete(userId: string): Promise<void> {
-    const existingBookings = await BookingModel.find({ customerId: userId });
+    const existingBookings = await BookingModel.find({ customerId: userId, active: true });
     if (existingBookings.length > 0) {
       throw new Error('User cannot be deleted because they have active bookings. Delete the bookings first.');
     }
-
-    const existingServices = await ServiceModel.find({ serviceProviderId: userId });
+  
+    const existingServices = await ServiceModel.find({ serviceProviderId: userId, active: true });
     if (existingServices.length > 0) {
       throw new Error('Service Provider cannot be deleted because they have active services. Delete the services first.');
     }
-
+  
     await UserModel.findByIdAndUpdate(userId, { active: false, deletedAt: new Date() });
   }
+  
 
   static async getAll(filters: any = {}): Promise<User[]> {
     return await UserModel.find({ active: true, ...filters });

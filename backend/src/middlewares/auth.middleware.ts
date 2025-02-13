@@ -42,7 +42,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
 
         // Attach the fresh user details to the request object
         req.user = user;
-        console.log(user);
+        // console.log(user);
         next();
     } catch (error) {
         res.status(401).json({ message: 'Invalid token' });
@@ -52,7 +52,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
 
 export const authorize = (roles: string[]) => {
     return (req: AuthRequest, res: Response, next: NextFunction): void => {
-        // console.log(req.user)
+        // console.log(req.user?.role)
         if (!req.user || !roles.includes(req.user.role)) {
             res.status(403).json({ message: 'Unauthorized' });
             return;
