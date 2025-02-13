@@ -1,7 +1,6 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
 
 interface MenuItem {
   label: string;
@@ -15,6 +14,7 @@ interface SidebarItems {
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
   // console.log(user);
+  const navigate = useNavigate();
 
   const sidebarItems: SidebarItems = {
     customer: [
@@ -32,21 +32,19 @@ const Sidebar: React.FC = () => {
     ]
   };
 
-  const items = user ? sidebarItems[user.role] || [] : []; // Conditional rendering based on user role.
+  const items = user ? sidebarItems[user.role] || [] : [];
 
   return (
     <div className="w-64 min-h-screen p-4 bg-gray-800">
       <div className="space-y-2">
         {items.map((item) => (
-          <NavLink
+          <button
             key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex w-full p-2 text-left text-white rounded hover:bg-gray-700 ${isActive ? 'text-white bg-gray-700' : ''}`
-            }
+            onClick={() => navigate(item.path)}
+            className="w-full p-2 text-left text-white rounded hover:bg-gray-700"
           >
             {item.label}
-          </NavLink>
+          </button>
         ))}
         <button
           onClick={logout}

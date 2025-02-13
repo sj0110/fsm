@@ -1,109 +1,65 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Plus } from "lucide-react";
-import { useAuth } from '../../context/AuthContext';
-import { endpoints } from '../../config/api';
+import { useState } from 'react';
+import { User } from '@/types';
+import { BaseDataTable } from './BaseDataTable';
+import { UserModal } from '../modals/UserModals';
+import { useAuth } from '@/context/AuthContext';
 
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
-const UserTable: React.FC<{ users: User[] }> = ({ users }) => {
+export default function UserTable({ 
+  users, 
+  onUpdate 
+}: { 
+  users: User[], 
+  onUpdate: () => void 
+}) {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
   const { user } = useAuth();
-  const navigate = useNavigate();
 
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      const response = await fetch(endpoints.users.delete(userId), {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
+  const handleAction = (selectedUser: User, mode: 'view' | 'edit') => {
+    setSelectedUser(selectedUser);
+    setModalMode(mode);
+  };
+  
+  const columns = [
+    { header: 'Name', accessorKey: 'name' },
+    { header: 'Email', accessorKey: 'email' },
+    { header: 'Role', accessorKey: 'role' },
+  ];
+
+  const getActions = () => {
+    if (user?.role === 'admin') {
+      return [
+        {
+          label: 'View Details',
+          onClick: (user: User) => handleAction(user, 'view'),
+        },
+        {
+          label: 'Edit',
+          onClick: (user: User) => handleAction(user, 'edit'),
         }
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message);
-      }
-
-      window.location.reload();
-    } catch (error) {
-      console.error('Error deleting user:', error);
+      ];
     }
+    return [];
   };
 
   return (
-    <div>
-      <Button 
-        onClick={() => navigate('/users/new')}
-        className="mb-4"
-      >
-        <Plus className="mr-2 h-4 w-4" /> New User
-      </Button>
-      
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.role}</TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => navigate(`/users/${user.id}`)}>
-                      View Details
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate(`/users/${user.id}/edit`)}>
-                      Edit User
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-red-600"
-                      onClick={() => handleDeleteUser(user.id)}
-                    >
-                      Delete User
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      <BaseDataTable
+        data={users}
+         // @ts-ignore
+        columns={columns}
+        actions={getActions()}
+        basePath="/users"
+      />
+      {selectedUser && (
+        <UserModal
+          user={selectedUser}
+          isOpen={!!selectedUser}
+          onClose={() => setSelectedUser(null)}
+          onSuccess={onUpdate}
+          mode={modalMode}
+        />
+      )}
+    </>
   );
-};
+}

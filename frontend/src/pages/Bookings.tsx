@@ -1,67 +1,147 @@
-import React, { useState, useEffect } from 'react';
-// import { useAuth } from '../context/AuthContext';
-import { endpoints } from '../config/api';
-import { Booking } from '../types';
+import { useState, useEffect } from 'react';
+import { Booking } from '@/types';
+import { endpoints } from '@/config/api';
+import BookingTable from '@/component/tables/BookingTable';
+import { useToast } from "@/hooks/use-toast"
 
-const Bookings: React.FC = () => {
+const Bookings = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  // const { user } = useAuth();
+  const { toast } = useToast();
+
+  
+  const handleDelete = async (bookingId: string) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "Please log in to delete bookings",
+      });
+      return;
+    }
+
+    try{
+      const response = await fetch(endpoints.bookings.delete(bookingId), {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          variant: "default",
+          title: "Booking deleted",
+          description: "Booking deleted successfully",
+        });
+        fetchBookings(); // refresh bookings after successful deletion
+      } else {
+        throw new Error('Failed to delete booking');
+      }
+    } catch (error) {
+      const err = error as Error; 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCustomerCancel = async (bookingId: string) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "Please log in to view bookings",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try{
+      const response = await fetch(endpoints.bookings.update(bookingId), { // cancelling a customer's booking
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          variant: "default",
+          title: "Booking cancelled",
+          description: "Booking cancelled successfully",
+        });
+        fetchBookings(); // refresh bookings after successful cancellation
+      } else {
+        throw new Error('Failed to cancel booking');
+      }
+    } catch (error) {
+      const err = error as Error; 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBookings = async () => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "Please log in to view bookings",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(endpoints.bookings.getAll, { // fetching all service bookings
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBookings(data);
+      } else {
+        throw new Error('Failed to fetch bookings');
+      }
+    } catch (error) {
+      const err = error as Error;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken) {
-        setError('User not authenticated');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(endpoints.bookings.getAll, {
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const data: Booking[] = await response.json();
-        if (response.ok) {
-          setBookings(data);
-        } else {
-          setError('Failed to fetch bookings');
-        }
-      } catch (err) {
-        setError('Failed to fetch bookings');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBookings();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  return (
-    <div>
-      <h2 className="mb-4 text-2xl font-bold">Bookings</h2>
-      <div className="space-y-4">
-        {bookings.map((booking) => (
-          <div key={booking.id} className="p-4 bg-white rounded-lg shadow">
-            <h3 className="mb-2 text-lg font-semibold">
-              Booking #{booking.id}
-            </h3>
-            <p className="text-gray-600">Service: {booking.serviceName}</p>
-            <p className="text-gray-600">Date: {new Date(booking.date).toLocaleDateString()}</p>
-            <p className="text-gray-600">Status: {booking.status}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  return <BookingTable bookings={bookings} onUpdate={fetchBookings} onDelete={handleDelete} onCustomerCancel={handleCustomerCancel} />;
 };
 
 export default Bookings;

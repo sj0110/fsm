@@ -1,144 +1,105 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import { useAuth } from '../../context/AuthContext';
-import { endpoints } from '../../config/api';
+import { useState } from 'react';
+import { Booking, Column, TableAction } from '@/types';
+import { BaseDataTable } from './BaseDataTable';
+import { BookingModal } from '../modals/BookingModals';
+import { useAuth } from '@/context/AuthContext';
+import { formatDate } from '@/lib/utils';
 
-interface Booking {
-  id: string;
-  serviceName: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
-  date: string;
-  userId: string;
-}
+export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCancel}: {
+  bookings: Booking[]; onUpdate: () => void; onDelete: (bookingId: string) => Promise<void>; onCustomerCancel: (bookingId: string) => Promise<void>;}) {
 
-const BookingTable: React.FC<{ bookings: Booking[] }> = ({ bookings }) => {
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
   const { user } = useAuth();
-  const navigate = useNavigate();
 
-  const handleUpdateStatus = async (bookingId: string, status: string) => {
-    try {
-      const response = await fetch(endpoints.bookings.update(bookingId), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
-        },
-        body: JSON.stringify({ status })
-      });
-
-      if (!response.ok) {
-        throw new Error('Status update failed');
-      }
-
-      window.location.reload();
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
+  const handleAction = (booking: Booking, mode: 'view' | 'edit') => {
+    setSelectedBooking(booking);
+    setModalMode(mode);
   };
 
-  const handleDeleteBooking = async (bookingId: string) => {
-    try {
-      const response = await fetch(endpoints.bookings.delete(bookingId), {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Deletion failed');
-      }
-
-      window.location.reload();
-    } catch (error) {
-      console.error('Error deleting booking:', error);
+  const columns : Column<Booking>[] = [
+    {
+      header: 'Service',
+      accessorKey: "serviceProviderId",
+      cell: (value: any) => value
+    },
+    {
+      header: 'Date & Time',
+      accessorKey: 'appointmentDate',
+      cell: (value: any) => formatDate(value)
+    },
+    {
+      header: 'Status',
+      accessorKey: 'status',
+      cell: (value: string) => (
+        <span className={`px-2 py-1 rounded-full text-sm ${
+          value === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+          value === 'confirmed' ? 'bg-blue-100 text-blue-800' :
+          value === 'inProgress'? 'bg-orange-100 text-orange-800':
+          value === 'cancelled' ? 'bg-red-100 text-red-800' :
+          value === 'completed' ? 'bg-green-100 text-green-800' :
+          'bg-gray-100 text-gray-800'
+        }`}>
+          {value.charAt(0).toUpperCase() + value.slice(1)}
+        </span>
+      )
     }
+  ];
+
+  const getActions = () : TableAction<Booking>[] => {
+  
+    const baseActions: TableAction<Booking>[] = [
+      {
+        label: 'View Details',
+        onClick: (booking: Booking) => handleAction(booking, 'view'),
+      }
+    ];
+
+    // Add delete action for customers with pending bookings
+    if (user?.role === 'customer') {
+      baseActions.push({
+        label: 'Cancel Booking',
+        onClick: (booking: Booking) => onCustomerCancel(booking._id),
+        showCondition: (booking: Booking) => booking.status.toString() === 'pending'
+      });
+    }
+
+    // Add edit action for admin and service provider
+    if (user?.role === 'admin' || user?.role === 'serviceProvider') {
+      baseActions.push({
+        label: 'Edit Status',
+        onClick: (booking: Booking) => handleAction(booking, 'edit'),
+      });
+    }
+
+    // Add edit action for admin and service provider
+    if (user?.role === 'admin') {
+      baseActions.push({
+        label: 'Delete Booking',
+        onClick: (booking: Booking) => onDelete(booking._id),
+      });
+    }
+
+    return baseActions;
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Service</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {bookings.map((booking) => (
-          <TableRow key={booking.id}>
-            <TableCell>{booking.serviceName}</TableCell>
-            <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
-            <TableCell>
-              {(user?.role === 'serviceProvider' || user?.role === 'admin') ? (
-                <Select
-                  value={booking.status}
-                  onValueChange={(value) => handleUpdateStatus(booking.id, value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue>{booking.status}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                booking.status
-              )}
-            </TableCell>
-            <TableCell className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => navigate(`/bookings/${booking.id}`)}>
-                    View Details
-                  </DropdownMenuItem>
-                  {(user?.role === 'customer' && booking.status === 'pending' || user?.role === 'admin') && (
-                    <DropdownMenuItem 
-                      className="text-red-600"
-                      onClick={() => handleDeleteBooking(booking.id)}
-                    >
-                      Cancel Booking
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      <BaseDataTable
+        data={bookings} // The fetched booking values
+        columns={columns} // The colums as defined above.
+        actions={getActions()} // Actions for each booking shown conditionally
+        basePath="/bookings"
+      />
+      {selectedBooking && (
+        <BookingModal
+          booking={selectedBooking} 
+          isOpen={!!selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+          onSuccess={onUpdate} // Execute onUpdate function upon successful execution
+          mode={modalMode}
+        />
+      )}
+    </>
   );
-};
+}

@@ -11,7 +11,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(null); // setting the token as string or null
+    const [token, setToken] = useState<string | null>(null);
 
     const login = async (email: string, password: string) => {
         try {
@@ -21,15 +21,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 body: JSON.stringify({ email, password }),
             });
 
-            const {token} = await response.json(); // Get Token in JSON response object
+            const data = await response.json();
             if (response.ok) {
-                const decoded: User = jwtDecode<User>(token);
+                const decoded: User = jwtDecode<User>(data.token);
                 setUser(decoded);
-                setToken(token); // Store token separately
-                localStorage.setItem('authToken', token); // Persist token if needed
+                setToken(data.token); // Store token separately
+                localStorage.setItem('authToken', data.token); // Persist token if needed
                 return { success: true };
             }
-            return { success: false, error: 'Invalid JSON response token, ' };
+            return { success: false, error: data.message };
         } catch (error) {
             return { success: false, error: 'Login failed. Please try again.' };
         }
@@ -57,11 +57,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 };
 
-// Piece of code defines a custom React Hook called useAuth, which provides access to the authentication context.
 export const useAuth = (): AuthContextType => {
-    const context = useContext(AuthContext); // retrieves the current value of AuthContext, (user, login, and logout).
+    const context = useContext(AuthContext);
     if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');
     }
-    return context; // returns the context value, allowing the component to access authentication data (user, login, and logout functions).
+    return context;
 };

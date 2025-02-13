@@ -1,11 +1,16 @@
 export interface User {
-  _id: string;
-  name: string;
+  _id: string; 
   email: string;
-  role: 'customer' | 'serviceProvider' | 'admin';
+  password: string;
+  role: 'admin' | 'customer' | 'serviceProvider';
+  name: string;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Service {
+  id: any;
   _id: string; 
   name: string;
   description: string;
@@ -35,37 +40,3 @@ export interface AuthContextType {
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => Promise<void>;
 }
-
-export interface TableAction<T> {
-  label: string;
-  onClick: (item: T) => void;
-  showCondition?: (item: T) => boolean;
-}
-
-export interface Column<T> {
-  header: string;
-  accessorKey: keyof T;
-  cell?: (value: any) => React.ReactNode;
-}
-
-export interface BaseDataTableProps<T> {
-  data: T[];
-  columns: Column<T>[];
-  actions: {
-    label: string;
-    onClick: (item: T) => void;
-    showCondition?: (item: T) => boolean;
-  }[];
-  basePath: string;
-  onRowClick?: (item: T) => void;
-}
-
-export interface BookingModalProps {
-  booking: Booking;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-  mode: 'view' | 'edit';
-}
-
-export type BookingStatus = "pending" | "confirmed" | "inProgress" | "completed" | "cancelled";
