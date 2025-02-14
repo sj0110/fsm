@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { statusOptions } from "@/lib/utils";
 
-// Mapping of internal status values to display labels
-
 export const BookingModal: React.FC<BookingModalProps> = ({
   booking,
   isOpen,
@@ -18,12 +16,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>(booking.status);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // When using setSelectedStatus
-const handleStatusChange = (value: string) => {
-  setSelectedStatus(value as BookingStatus);
-};
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value as BookingStatus);
+  };
 
-  const handleStatusUpdate = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     if (selectedStatus === booking.status) {
       onClose();
       return;
@@ -56,52 +55,76 @@ const handleStatusChange = (value: string) => {
     }
   };
 
+  // Handle button click separately to prevent form submission on Cancel
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (e.currentTarget.type !== 'submit') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
   return (
     <SharedModal
       isOpen={isOpen}
       onClose={onClose}
-      title={mode === 'view' ? 'Booking Details' : 'Edit Booking'}
+      title={mode === "view" ? "Booking Details" : "Edit Booking"}
     >
-      <div className="space-y-4">
-        <p><strong>Service:</strong> {booking.serviceId}</p>
-        <p><strong>Date:</strong> {new Date(booking.appointmentDate).toLocaleString()}</p>
-        <p><strong>Status:</strong> {statusOptions[booking.status]}</p>
-        {mode === 'edit' && (
-          <div className="space-y-4">
-            <Select 
-              value={selectedStatus} 
-              onValueChange={handleStatusChange}
-              disabled={isUpdating}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue>{statusOptions[selectedStatus]}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(statusOptions).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={onClose}
+      {booking ? (
+        <form onSubmit={handleSubmit} className="space-y-4 p-4">
+          <p className="text-sm md:text-base">
+            <strong>Service:</strong> {booking.serviceId || "No service available"}
+          </p>
+          <p className="text-sm md:text-base">
+            <strong>Date:</strong> {booking.appointmentDate ? new Date(booking.appointmentDate).toLocaleString() : "No date available"}
+          </p>
+          <p className="text-sm md:text-base">
+            <strong>Status:</strong> {statusOptions[booking.status] || "No status available"}
+          </p>
+
+          {mode === "edit" && (
+            <div className="space-y-4">
+              <Select
+                value={selectedStatus}
+                onValueChange={handleStatusChange}
                 disabled={isUpdating}
               >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleStatusUpdate}
-                disabled={isUpdating || selectedStatus === booking.status}
-              >
-                {isUpdating ? 'Saving...' : 'Save Changes'}
-              </Button>
+                <SelectTrigger className="w-full border border-gray-300 rounded-lg p-2 text-sm md:text-base">
+                  <SelectValue>{statusOptions[selectedStatus] || "Select Status"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(statusOptions).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleButtonClick}
+                  disabled={isUpdating}
+                  className="w-full md:w-auto"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isUpdating || selectedStatus === booking.status}
+                  className="w-full md:w-auto"
+                >
+                  {isUpdating ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </form>
+      ) : (
+        <p className="text-center text-gray-500 py-4">No booking details available</p>
+      )}
     </SharedModal>
+
   );
 };

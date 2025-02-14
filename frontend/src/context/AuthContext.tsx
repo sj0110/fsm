@@ -1,7 +1,9 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect, useLayoutEffect } from 'react';
 import { User, AuthContextType } from '../types';
 import { endpoints } from '../config/api';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -10,9 +12,24 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+    const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null); // setting the token as string or null
 
+    useLayoutEffect(() => {
+        const storedToken = localStorage.getItem('authToken');
+        if (storedToken) {
+            try {
+                const decodedUser = jwtDecode<User>(storedToken);
+                setUser(decodedUser);
+                setToken(storedToken);
+            } catch (error) {
+                toast.error('Authentication Error: Token is invalid');
+                localStorage.removeItem('authToken');
+            }
+        }
+    }, []);
+    
     const login = async (email: string, password: string) => {
         try {
             const response = await fetch(endpoints.auth.login, {
@@ -27,10 +44,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 setUser(decoded);
                 setToken(token); // Store token separately
                 localStorage.setItem('authToken', token); // Persist token if needed
+                toast.success('Login Successful');
+                navigate('/services'); // Redirect to dashboard after successful login
                 return { success: true };
             }
-            return { success: false, error: 'Invalid JSON response token, ' };
+            toast.error('Invalid JSON response token');
+            return { success: false, error: 'Invalid JSON response token' };
         } catch (error) {
+            toast.error('Login failed. Please try again')
             return { success: false, error: 'Login failed. Please try again.' };
         }
     };
@@ -38,15 +59,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const logout = async () => {
         try {
             if (token) {
-                await fetch(endpoints.auth.logout, {
+                const response = await fetch(endpoints.auth.logout, {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
                 });
+                if (response.ok) {
+                    toast.success('Logout successful');
+                    setUser(null);
+                    setToken(null);
+                    localStorage.removeItem('authToken');
+                }
+                else {
+                    toast.error('Failed to logout');
+                }
             }
-        } finally {
-            setUser(null);
-            setToken(null);
-            localStorage.removeItem('authToken'); // Clear token storage
+        } catch (error) {
+            toast.error('Failed to logout');
         }
     };
 

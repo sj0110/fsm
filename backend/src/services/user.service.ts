@@ -11,9 +11,9 @@ export class UserService {
     if (existingUser) {
       if (!existingUser.active) {
         // Reactivate user and update with new data
-        if (userData.password) {
-          userData.password = await bcrypt.hash(userData.password, 10);
-        }
+        // if (userData.password) {
+        //   userData.password = await bcrypt.hash(userData.password, 10);
+        // }
 
         Object.assign(existingUser, userData, { active: true, updatedAt: new Date() });
         await existingUser.save();
@@ -23,9 +23,9 @@ export class UserService {
     }
 
     // Hash password before creating a new user
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, 10);
-    }
+    // if (userData.password) {
+    //   userData.password = await bcrypt.hash(userData.password, 10);
+    // }
 
     // Create a new user
     const newUser = new UserModel({

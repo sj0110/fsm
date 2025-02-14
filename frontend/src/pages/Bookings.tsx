@@ -2,23 +2,19 @@ import { useState, useEffect } from 'react';
 import { Booking } from '@/types';
 import { endpoints } from '@/config/api';
 import BookingTable from '@/component/tables/BookingTable';
-import { useToast } from "@/hooks/use-toast"
+import { toast } from 'react-toastify';
 
 const Bookings = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   
   const handleDelete = async (bookingId: string) => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "Please log in to delete bookings",
-      });
-      return;
+      toast.error('Authentication Error: Please log in first');
+            setLoading(false);
+            return;
     }
 
     try{
@@ -30,22 +26,13 @@ const Bookings = () => {
       });
 
       if (response.ok) {
-        toast({
-          variant: "default",
-          title: "Booking deleted",
-          description: "Booking deleted successfully",
-        });
+        toast.success('Bookings deleted successfully');
         fetchBookings(); // refresh bookings after successful deletion
       } else {
         throw new Error('Failed to delete booking');
       }
     } catch (error) {
-      const err = error as Error; 
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: err.message,
-      });
+      toast.error((error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -54,11 +41,7 @@ const Bookings = () => {
   const handleCustomerCancel = async (bookingId: string) => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "Please log in to view bookings",
-      });
+      toast.error('Please login to view booking');
       setLoading(false);
       return;
     }
@@ -73,22 +56,13 @@ const Bookings = () => {
       });
 
       if (response.ok) {
-        toast({
-          variant: "default",
-          title: "Booking cancelled",
-          description: "Booking cancelled successfully",
-        });
+        toast.success('Booking deleted successfully');
         fetchBookings(); // refresh bookings after successful cancellation
       } else {
         throw new Error('Failed to cancel booking');
       }
     } catch (error) {
-      const err = error as Error; 
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: err.message,
-      });
+      toast.error((error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -97,11 +71,7 @@ const Bookings = () => {
   const fetchBookings = async () => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "Please log in to view bookings",
-      });
+      toast.error('Authentication Error: Please log in first');
       setLoading(false);
       return;
     }
@@ -121,12 +91,7 @@ const Bookings = () => {
         throw new Error('Failed to fetch bookings');
       }
     } catch (error) {
-      const err = error as Error;
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: err.message,
-      });
+      toast.error((error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -141,7 +106,18 @@ const Bookings = () => {
     return <div>Loading...</div>;
   }
 
-  return <BookingTable bookings={bookings} onUpdate={fetchBookings} onDelete={handleDelete} onCustomerCancel={handleCustomerCancel} />;
+  return bookings.length > 0 ? (
+    <BookingTable
+      bookings={bookings}
+      onUpdate={fetchBookings}
+      onDelete={handleDelete}
+      onCustomerCancel={handleCustomerCancel}
+    />
+  ) : (
+    <div className="flex items-center justify-center min-h-[200px] text-gray-500 text-sm">
+      No bookings available
+    </div>
+  );  
 };
 
 export default Bookings;

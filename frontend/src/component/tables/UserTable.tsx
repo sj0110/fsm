@@ -6,10 +6,12 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function UserTable({ 
   users, 
-  onUpdate 
+  onUpdate, 
+  onDelete
 }: { 
   users: User[], 
-  onUpdate: () => void 
+  onUpdate: () => void,
+  onDelete: (userId: string) => Promise<void>
 }) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
@@ -34,8 +36,12 @@ export default function UserTable({
           onClick: (user: User) => handleAction(user, 'view'),
         },
         {
-          label: 'Edit',
+          label: 'Update User Details',
           onClick: (user: User) => handleAction(user, 'edit'),
+        },
+        {
+          label: 'Delete User',
+          onClick: (user: User) => onDelete(user._id),
         }
       ];
     }

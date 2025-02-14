@@ -18,27 +18,26 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen">
       <Sidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 md:p-8">
         <Routes>
           {/* Common Routes */}
           <Route path="/services" element={<Services />} />
           <Route path="/bookings" element={<Bookings />} />
-          
+
           {/* Admin Only Routes */}
-          {user.role === 'admin' && (
-            <Route path="/users" element={<Users />} />
-          )}
-          
+          {user.role === "admin" && <Route path="/users" element={<Users />} />}
+
           {/* Default redirect when user logs in */}
           <Route path="/" element={<Navigate to="/services" replace />} />
-          
-          {/* Catch all redirect if not comes to / and redirect to services page */}
+
+          {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/services" replace />} />
         </Routes>
       </div>
     </div>
+
   );
 };
 
