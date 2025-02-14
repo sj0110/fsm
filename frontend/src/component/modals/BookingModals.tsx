@@ -4,15 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BookingModalProps, BookingStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { statusOptions } from "@/lib/utils";
 
 // Mapping of internal status values to display labels
-const statusOptions: { [key: string]: string } = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  inProgress: "In Progress", // Added this line
-  cancelled: "Cancelled",
-  completed: "Completed",
-};
 
 export const BookingModal: React.FC<BookingModalProps> = ({
   booking,

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,10 +23,10 @@ export function BaseDataTable<T extends { _id: string }>({
   data,
   columns,
   actions,
-  basePath,
-  onRowClick,
+  // basePath,
+  // onRowClick,
 }: BaseDataTableProps<T>) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // const handleRowClick = (item: T) => {
   //   if (onRowClick) {

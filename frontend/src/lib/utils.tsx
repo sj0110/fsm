@@ -16,3 +16,11 @@ export const formatDate = (date: string | Date) => {
     </div>
   );
 };
+
+export const statusOptions: { [key: string]: string } = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  inProgress: "In Progress", // Added this line
+  cancelled: "Cancelled",
+  completed: "Completed",
+};

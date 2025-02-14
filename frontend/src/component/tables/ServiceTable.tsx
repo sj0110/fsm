@@ -8,7 +8,7 @@ import { BaseDataTable } from './BaseDataTable';
 import { ServiceModal } from '../modals/ServiceModals';
 import { useAuth } from '@/context/AuthContext';
 
-export default function ServiceTable({ services, onUpdate }: { services: Service[], onUpdate: () => void }) {
+export default function ServiceTable({ services, onUpdate, onDelete }: { services: Service[], onUpdate: () => void, onDelete: (bookingId: string) => Promise<void>; }) {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [modalMode, setModalMode] = useState<'view' | 'edit' | 'book'>('view');
   const { user } = useAuth();
@@ -21,6 +21,7 @@ export default function ServiceTable({ services, onUpdate }: { services: Service
   const columns: { header: string; accessorKey: keyof Service }[] = [
     { header: 'Name', accessorKey: 'name' },
     { header: 'Description', accessorKey: 'description' },
+    { header: 'Duration', accessorKey: 'duration' },
     { header: 'Price', accessorKey: 'price' },
   ];
 
@@ -36,8 +37,12 @@ export default function ServiceTable({ services, onUpdate }: { services: Service
       return [
         ...baseActions,
         {
-          label: 'Edit',
+          label: 'Edit Details',
           onClick: (service: Service) => handleAction(service, 'edit'),
+        },
+        {
+          label: 'Delete Service',
+          onClick: (service: Service) => onDelete(service._id)
         },
       ];
     }
@@ -61,11 +66,11 @@ export default function ServiceTable({ services, onUpdate }: { services: Service
         data={services}
         columns={columns}
         actions={getActions()}
-        basePath="/services"
+        // basePath="/services"
       />
       {selectedService && (
         <ServiceModal
-          service={selectedService}
+          service={selectedService} // Currently selected service
           isOpen={!!selectedService}
           onClose={() => setSelectedService(null)}
           onSuccess={onUpdate}

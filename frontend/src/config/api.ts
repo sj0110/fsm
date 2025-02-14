@@ -21,6 +21,7 @@ export const endpoints = {
   },
   users: {
     getAll: `${API_URL}/api/users`,
+    getAllServiceProviders: `${API_URL}/api/users?role=serviceProvider`,
     getById: (id: string) => `${API_URL}/api/users/${id}`,
     create: `${API_URL}/api/users`,
     update: (id: string) => `${API_URL}/api/users/${id}`,

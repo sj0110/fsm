@@ -56,8 +56,8 @@ export interface BaseDataTableProps<T> {
     onClick: (item: T) => void;
     showCondition?: (item: T) => boolean;
   }[];
-  basePath: string;
-  onRowClick?: (item: T) => void;
+  // basePath: string;
+  // onRowClick?: (item: T) => void;
 }
 
 export interface BookingModalProps {
@@ -66,6 +66,15 @@ export interface BookingModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   mode: 'view' | 'edit';
+}
+
+export interface ServiceModalProps {
+  service: Service;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+  mode: 'view' | 'edit' | 'book';
+  serviceProviders?: User[];
 }
 
 export type BookingStatus = "pending" | "confirmed" | "inProgress" | "completed" | "cancelled";

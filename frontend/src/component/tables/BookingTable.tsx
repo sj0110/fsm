@@ -3,7 +3,7 @@ import { Booking, Column, TableAction } from '@/types';
 import { BaseDataTable } from './BaseDataTable';
 import { BookingModal } from '../modals/BookingModals';
 import { useAuth } from '@/context/AuthContext';
-import { formatDate } from '@/lib/utils';
+import { formatDate, statusOptions } from '@/lib/utils';
 
 export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCancel}: {
   bookings: Booking[]; onUpdate: () => void; onDelete: (bookingId: string) => Promise<void>; onCustomerCancel: (bookingId: string) => Promise<void>;}) {
@@ -40,7 +40,7 @@ export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCa
           value === 'completed' ? 'bg-green-100 text-green-800' :
           'bg-gray-100 text-gray-800'
         }`}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+          {statusOptions[value]}
         </span>
       )
     }
@@ -50,7 +50,7 @@ export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCa
   
     const baseActions: TableAction<Booking>[] = [
       {
-        label: 'View Details',
+        label: 'View Booking Details',
         onClick: (booking: Booking) => handleAction(booking, 'view'),
       }
     ];
@@ -67,7 +67,7 @@ export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCa
     // Add edit action for admin and service provider
     if (user?.role === 'admin' || user?.role === 'serviceProvider') {
       baseActions.push({
-        label: 'Edit Status',
+        label: 'Update Status',
         onClick: (booking: Booking) => handleAction(booking, 'edit'),
       });
     }
@@ -89,7 +89,7 @@ export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCa
         data={bookings} // The fetched booking values
         columns={columns} // The colums as defined above.
         actions={getActions()} // Actions for each booking shown conditionally
-        basePath="/bookings"
+        // basePath="/bookings"
       />
       {selectedBooking && (
         <BookingModal
