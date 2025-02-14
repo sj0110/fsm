@@ -11,4 +11,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  /* esbuild drop option specifies which statements to remove during the build process. By setting it to ['console'], all console statements (console.log, console.error, etc.) will be omitted from the production build.*/
+  esbuild: {
+    drop: ['console'],
+  },
 })

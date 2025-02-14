@@ -42,7 +42,7 @@ export class ServiceService {
   }
 
   static async delete(serviceId: string): Promise<void> {
-    const existingBookings = await BookingModel.find({ serviceId });
+    const existingBookings = await BookingModel.find({ active:true, serviceId });
     if (existingBookings.length > 0) {
       throw new Error('Service cannot be deleted because it has active bookings. Delete the bookings first.');
     }

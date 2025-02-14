@@ -5,7 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SharedModal } from './SharedModal';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 
 export const ServiceModal: React.FC<ServiceModalProps> = ({
   service,
@@ -14,10 +16,10 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
   onSuccess,
   mode,
 }) => {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [serviceProviders, setServiceProviders] = useState<User[]>([]);
   const [formData, setFormData] = useState({
+    _id: service._id,
     name: service.name,
     description: service.description,
     duration: service.duration,
@@ -26,10 +28,8 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
     appointmentDate: '',
   });
 
-  // Track if form has been modified
   const [isFormModified, setIsFormModified] = useState(false);
 
-  // Check if form has been modified compared to original service
   const hasChanges = () => {
     return (
       formData.name !== service.name ||
@@ -40,7 +40,6 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
     );
   };
 
-  // Fetch service providers when modal opens in edit mode
   useEffect(() => {
     if (mode === 'edit' && isOpen) {
       fetchServiceProviders();
@@ -66,11 +65,7 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
         throw new Error('Failed to fetch service providers');
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch service providers",
-      });
+      toast.error((error as Error).message);
     }
   };
 
@@ -82,13 +77,27 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
     setIsFormModified(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default form submission
+    
+    // Check if form should be submitted
+    const shouldSubmit = !(
+      isLoading ||
+      (mode === 'edit' && !isFormModified) ||
+      (mode === 'edit' && !hasChanges()) ||
+      (mode === 'book' && !formData.appointmentDate)
+    );
+
+    if (!shouldSubmit) {
+      return;
+    }
+
     setIsLoading(true);
     const authToken = localStorage.getItem('authToken');
 
     try {
       let response;
+      
       if (mode === 'edit') {
         response = await fetch(endpoints.services.update(service._id), {
           method: 'PUT',
@@ -106,32 +115,32 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
             'Authorization': `Bearer ${authToken}`,
           },
           body: JSON.stringify({
-            serviceId: service._id,
+            serviceId: formData._id.toString(),
             appointmentDate: formData.appointmentDate,
           }),
         });
       }
 
       if (response?.ok) {
-        toast({
-          title: mode === 'edit' ? "Service Updated" : "Booking Created",
-          description: mode === 'edit' ? 
-            "Service details have been updated successfully" : 
-            "Your appointment has been booked successfully",
-        });
+        const message = mode === 'edit' ? 'Service details have been updated successfully' : 'Your appointment has been booked successfully';
+        toast.success(message);
         onSuccess?.();
         onClose();
       } else {
         throw new Error(mode === 'edit' ? 'Failed to update service' : 'Failed to book service');
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: (error as Error).message,
-      });
+      toast.error((error as Error).message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle button click separately to prevent form submission on Cancel
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (e.currentTarget.type !== 'submit') {
+      e.preventDefault();
+      onClose();
     }
   };
 
@@ -201,7 +210,19 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
                 <SelectContent>
                   {serviceProviders.map((provider) => (
                     <SelectItem key={provider._id} value={provider._id}>
-                      {provider.name}
+                      <div className="flex items-center">
+                        <span>{provider.name}</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="ml-2 h-4 w-4 text-gray-500 cursor-pointer" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>ID: {provider._id}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -222,17 +243,18 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
         {mode !== 'view' && (
           <div className="flex justify-end space-x-2 pt-4">
             <Button
+              type="button" // Changed to type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleButtonClick}
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={
-                isLoading || 
-                (mode === 'edit' && !isFormModified) || 
+                isLoading ||
+                (mode === 'edit' && !isFormModified) ||
                 (mode === 'edit' && !hasChanges()) ||
                 (mode === 'book' && !formData.appointmentDate)
               }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Service } from '@/types';
 import { endpoints } from '@/config/api';
 import ServiceTable from '@/component/tables/ServiceTable';
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "react-toastify"
 
 const Services = () => {
 
@@ -12,20 +12,15 @@ const Services = () => {
 
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const handleDelete = async (selectedServiceId: string) => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "Please log in first",
-      });
+      toast.error('Authentication Error: Please log in first');
       setLoading(false);
       return;
     }
-
+  
     try {
       const response = await fetch(endpoints.services.delete(selectedServiceId), {
         method: 'DELETE',
@@ -34,38 +29,32 @@ const Services = () => {
           'Content-Type': 'application/json',
         },
       });
-
+  
       if (response.ok) {
-        toast({
-          variant: "default",
-          title: "Service Deleted",
-          description: "The service has been deleted successfully",
-        });
+        toast.success('The service has been deleted successfully');
         setServices(services.filter(service => service._id !== selectedServiceId));
       } else {
-        throw new Error('Failed to delete service');
+        // Attempt to parse the error message from the response body
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const errorData = isJson ? await response.json() : null;
+        const errorMessage = errorData?.message || `Failed to delete service: ${response.statusText}`;
+        // throw new Error(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
       const err = error as Error;
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: err.message,
-      });
+      // console.error('Error:', err);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
-
+  
 
   const fetchServices = async () => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "Please log in to view services",
-      });
+      toast.error('Please login to view services');
       setLoading(false);
       return;
     }
@@ -82,14 +71,12 @@ const Services = () => {
         const data = await response.json();
         setServices(data);
       } else {
+        toast.error('Failed to fetch services');
         throw new Error('Failed to fetch services');
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch services",
-      });
+      const err = error as Error;
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
