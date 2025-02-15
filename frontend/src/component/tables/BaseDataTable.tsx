@@ -110,26 +110,27 @@ export function BaseDataTable<T extends { _id: string }>({
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row items-center gap-2">
+        <div className="relative flex-1 w-full sm:max-w-md">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
           <Input
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
+            className="pl-8 w-full"
           />
         </div>
       </div>
 
-      <div className="rounded-md border overflow-x-auto">
-        <Table className="min-w-full">
+      {/* Table Wrapper */}
+      <div className="rounded-md border overflow-auto">
+        <Table className="min-w-max w-full">
           <TableHeader className="bg-gray-100">
             <TableRow>
               {columns.map((column) => (
                 <TableHead
                   key={String(column.accessorKey)}
-                  className="px-4 py-2 text-sm font-semibold text-gray-700 cursor-pointer"
+                  className="px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 cursor-pointer"
                   onClick={() => handleSort(column.accessorKey)}
                 >
                   <div className="flex items-center gap-1">
@@ -142,7 +143,7 @@ export function BaseDataTable<T extends { _id: string }>({
                   </div>
                 </TableHead>
               ))}
-              <TableHead className="px-4 py-2 text-sm font-semibold text-gray-700">
+              <TableHead className="px-4 py-2 text-xs md:text-sm font-semibold text-gray-700">
                 Actions
               </TableHead>
             </TableRow>
@@ -150,21 +151,13 @@ export function BaseDataTable<T extends { _id: string }>({
           <TableBody>
             {currentData.length > 0 ? (
               currentData.map((item) => (
-                <TableRow
-                  key={item._id}
-                  className="cursor-pointer hover:bg-gray-50"
-                >
+                <TableRow key={item._id} className="cursor-pointer hover:bg-gray-50">
                   {columns.map((column) => (
-                    <TableCell key={String(column.accessorKey)} className="px-4 py-2">
-                      {column.cell
-                        ? column.cell(item[column.accessorKey])
-                        : String(item[column.accessorKey])}
+                    <TableCell key={String(column.accessorKey)} className="px-4 py-2 text-xs md:text-sm">
+                      {column.cell ? column.cell(item[column.accessorKey]) : String(item[column.accessorKey])}
                     </TableCell>
                   ))}
-                  <TableCell
-                    className="px-4 py-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <TableCell className="px-4 py-2 text-xs md:text-sm" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -174,14 +167,9 @@ export function BaseDataTable<T extends { _id: string }>({
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         {actions
-                          .filter((action) =>
-                            action.showCondition ? action.showCondition(item) : true
-                          )
+                          .filter((action) => (action.showCondition ? action.showCondition(item) : true))
                           .map((action) => (
-                            <DropdownMenuItem
-                              key={action.label}
-                              onClick={() => action.onClick(item)}
-                            >
+                            <DropdownMenuItem key={action.label} onClick={() => action.onClick(item)}>
                               {action.label}
                             </DropdownMenuItem>
                           ))}
@@ -203,14 +191,11 @@ export function BaseDataTable<T extends { _id: string }>({
 
       {/* Pagination Controls */}
       {processedData.length > 0 && (
-        <div className="flex items-center justify-between px-2">
+        <div className="flex flex-col sm:flex-row items-center justify-between px-2 gap-2">
           <div className="flex items-center gap-2">
-            <p className="text-sm text-gray-700">Rows per page:</p>
-            <Select
-              value={String(pageSize)}
-              onValueChange={handlePageSizeChange}
-            >
-              <SelectTrigger className="w-20">
+            <p className="text-xs md:text-sm text-gray-700">Rows per page:</p>
+            <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+              <SelectTrigger className="w-16 md:w-20">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -224,24 +209,14 @@ export function BaseDataTable<T extends { _id: string }>({
           </div>
 
           <div className="flex items-center gap-2">
-            <p className="text-sm text-gray-700">
+            <p className="text-xs md:text-sm text-gray-700">
               Page {currentPage} of {totalPages}
             </p>
             <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={previousPage}
-                disabled={currentPage === 1}
-              >
+              <Button variant="outline" size="icon" onClick={previousPage} disabled={currentPage === 1}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={nextPage}
-                disabled={currentPage === totalPages}
-              >
+              <Button variant="outline" size="icon" onClick={nextPage} disabled={currentPage === totalPages}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

@@ -10,13 +10,28 @@ import userRoutes from './routes/user.routes';
 import serviceRoutes from './routes/service.routes';
 
 const app = express();
+// Convert comma-separated env variable to an array
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error(`Blocked by CORS: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
 
 // Middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Default to localhost if not set
-  credentials: true, // Allows cookies and authentication headers
-}));
+app.use(cors(corsOptions));
+// app.use(cors({
+//   origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:5173', // Default to localhost if not set
+//   credentials: true, // Allows cookies and authentication headers
+// }));
 app.use(express.json());
 // app.use(rateLimiter);
 
