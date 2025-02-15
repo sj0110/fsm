@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User } from '@/types';
+import { Column, User } from '@/types';
 import { BaseDataTable } from './BaseDataTable';
 import { UserModal } from '../modals/UserModals';
 import { useAuth } from '@/context/AuthContext';
@@ -22,7 +22,7 @@ export default function UserTable({
     setModalMode(mode);
   };
   
-  const columns = [
+  const columns : Column<User>[] = [
     { header: 'Name', accessorKey: 'name' },
     { header: 'Email', accessorKey: 'email' },
     { header: 'Role', accessorKey: 'role',
@@ -57,10 +57,10 @@ export default function UserTable({
     <>
       <BaseDataTable
         data={users}
-         // @ts-ignore
         columns={columns}
         actions={getActions()}
-        basePath="/users"
+        defaultSort={{ key: 'name', direction: 'asc' }} // Sort users by name
+        // basePath="/users"
       />
       {selectedUser && (
         <UserModal

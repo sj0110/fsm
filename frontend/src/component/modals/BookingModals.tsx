@@ -71,18 +71,37 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     >
       {booking ? (
         <form onSubmit={handleSubmit} className="space-y-4 p-4">
-          <p className="text-sm md:text-base">
-            <strong>Service:</strong> {booking.serviceId || "No service available"}
-          </p>
-          <p className="text-sm md:text-base">
-            <strong>Date:</strong> {booking.appointmentDate ? new Date(booking.appointmentDate).toLocaleString() : "No date available"}
-          </p>
-          <p className="text-sm md:text-base">
-            <strong>Status:</strong> {statusOptions[booking.status] || "No status available"}
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm md:text-base">
+              <strong>Service:</strong> {booking.service?.name || "No service available"}
+            </p>
+            <p className="text-sm md:text-base">
+              <strong>Service Provider:</strong> {booking.serviceProvider?.name || "No provider available"}
+            </p>
+            <p className="text-sm md:text-base">
+              <strong>Customer:</strong> {booking.customer?.name || "No customer available"}
+            </p>
+            <p className="text-sm md:text-base">
+              <strong>Service Description:</strong> {booking.service?.description || "No description available"}
+            </p>
+            <p className="text-sm md:text-base">
+              <strong>Price:</strong> ${booking.service?.price?.toFixed(2) || "N/A"}
+            </p>
+            <p className="text-sm md:text-base">
+              <strong>Date:</strong> {booking.appointmentDate ? new Date(booking.appointmentDate).toLocaleString() : "No date available"}
+            </p>
+            <p className="text-sm md:text-base">
+              <strong>Status:</strong> {statusOptions[booking.status] || "No status available"}
+            </p>
+            {booking.notes && (
+              <p className="text-sm md:text-base">
+                <strong>Notes:</strong> {booking.notes}
+              </p>
+            )}
+          </div>
 
           {mode === "edit" && (
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4">
               <Select
                 value={selectedStatus}
                 onValueChange={handleStatusChange}
@@ -100,11 +119,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 </SelectContent>
               </Select>
 
-              <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-2 pt-4">
+              <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-2">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={handleButtonClick}
+                  onClick={onClose}
                   disabled={isUpdating}
                   className="w-full md:w-auto"
                 >
@@ -125,6 +144,5 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         <p className="text-center text-gray-500 py-4">No booking details available</p>
       )}
     </SharedModal>
-
   );
 };

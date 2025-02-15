@@ -19,7 +19,7 @@ const LoginScreen: React.FC = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-            <div className="p-6 md:p-8 bg-white rounded-lg shadow-lg w-full max-w-sm">
+            <div className="p-6 md:p-8 md:mb-48 bg-white rounded-lg shadow-lg w-full max-w-sm">
                 <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">Login</h2>
 
                 {error && (

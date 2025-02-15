@@ -3,7 +3,7 @@
 
 // src/components/tables/ServiceTable.tsx
 import { useState } from 'react';
-import { Service } from '@/types';
+import { Column, Service } from '@/types';
 import { BaseDataTable } from './BaseDataTable';
 import { ServiceModal } from '../modals/ServiceModals';
 import { useAuth } from '@/context/AuthContext';
@@ -18,11 +18,18 @@ export default function ServiceTable({ services, onUpdate, onDelete }: { service
     setModalMode(mode);
   };
 
-  const columns: { header: string; accessorKey: keyof Service }[] = [
+  const columns: Column<Service>[] = [
     { header: 'Name', accessorKey: 'name' },
     { header: 'Description', accessorKey: 'description' },
-    { header: 'Duration', accessorKey: 'duration' },
-    { header: 'Price', accessorKey: 'price' },
+    { header: 'Duration (min)', accessorKey: 'duration' },
+    { header: 'Price', 
+      accessorKey: 'price',
+      cell: (price: number) => `$${price.toFixed(2)}`
+    },
+    { header: 'Service Provider', 
+      accessorKey: 'serviceProvider',
+      cell: (provider: { name: string } | undefined) => provider?.name || 'N/A'
+    },
   ];
 
   const getActions = () => {
@@ -66,6 +73,7 @@ export default function ServiceTable({ services, onUpdate, onDelete }: { service
         data={services}
         columns={columns}
         actions={getActions()}
+        defaultSort={{ key: 'name', direction: 'asc' }} // Sort services by name
         // basePath="/services"
       />
       {selectedService && (

@@ -1,10 +1,9 @@
-import React from 'react';
-import { useAuth } from './context/AuthContext';
-import LoginScreen from './component/LoginScreen';
-import Dashboard from './component/Dashboard';
-import './toastStyles.css';
-import { ToastContainer } from 'react-toastify';
-
+import React from "react";
+import { useAuth } from "./context/AuthContext";
+import LoginScreen from "./component/LoginScreen";
+import Dashboard from "./component/Dashboard";
+import "./toastStyles.css";
+import { ToastContainer } from "react-toastify";
 
 const App: React.FC = () => {
   const { user } = useAuth();
@@ -12,7 +11,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <ToastContainer
-        position="bottom-right"
+        position="bottom-right" // Better placement for small screens
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
@@ -21,6 +20,7 @@ const App: React.FC = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        className="custom-toast-container"
       />
       {user ? <Dashboard /> : <LoginScreen />}
     </div>

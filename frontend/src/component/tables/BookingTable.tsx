@@ -5,9 +5,17 @@ import { BookingModal } from '../modals/BookingModals';
 import { useAuth } from '@/context/AuthContext';
 import { formatDate, statusOptions } from '@/lib/utils';
 
-export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCancel}: {
-  bookings: Booking[]; onUpdate: () => void; onDelete: (bookingId: string) => Promise<void>; onCustomerCancel: (bookingId: string) => Promise<void>;}) {
-
+export default function BookingTable({
+  bookings, 
+  onUpdate, 
+  onDelete, 
+  onCustomerCancel
+}: {
+  bookings: Booking[];
+  onUpdate: () => void;
+  onDelete: (bookingId: string) => Promise<void>;
+  onCustomerCancel: (bookingId: string) => Promise<void>;
+}) {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
   const { user } = useAuth();
@@ -17,11 +25,21 @@ export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCa
     setModalMode(mode);
   };
 
-  const columns : Column<Booking>[] = [
+  const columns: Column<Booking>[] = [
     {
       header: 'Service',
-      accessorKey: "serviceProviderId",
-      cell: (value: any) => value
+      accessorKey: 'service',
+      cell: (value: Booking['service']) => value?.name ?? 'N/A'
+    },
+    {
+      header: 'Service Provider',
+      accessorKey: 'serviceProvider',
+      cell: (value: Booking['serviceProvider']) => value?.name ?? 'N/A'
+    },
+    {
+      header: 'Customer',
+      accessorKey: 'customer',
+      cell: (value: Booking['customer']) => value?.name ?? 'N/A'
     },
     {
       header: 'Date & Time',
@@ -35,7 +53,7 @@ export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCa
         <span className={`px-2 py-1 rounded-full text-sm ${
           value === 'pending' ? 'bg-yellow-100 text-yellow-800' :
           value === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-          value === 'inProgress'? 'bg-orange-100 text-orange-800':
+          value === 'inProgress' ? 'bg-orange-100 text-orange-800' :
           value === 'cancelled' ? 'bg-red-100 text-red-800' :
           value === 'completed' ? 'bg-green-100 text-green-800' :
           'bg-gray-100 text-gray-800'
@@ -89,6 +107,7 @@ export default function BookingTable({bookings, onUpdate, onDelete, onCustomerCa
         data={bookings} // The fetched booking values
         columns={columns} // The colums as defined above.
         actions={getActions()} // Actions for each booking shown conditionally
+        defaultSort={{ key: 'appointmentDate', direction: 'desc' }}  // Sort bookings by date, newest first
         // basePath="/bookings"
       />
       {selectedBooking && (

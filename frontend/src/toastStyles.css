@@ -1,23 +1,99 @@
-
-/* toastStyles.css */
+/* Toast Container Styling */
 .custom-toast {
-    background-color: #333;
-    color: #fff;
-    padding: 16px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  background-color: #333;
+  color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 400px; /* Prevents excessive width on larger screens */
+  width: 100%;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Toast Title */
+.custom-toast-title {
+  font-weight: bold;
+  flex: 1;
+  font-size: 14px;
+}
+
+/* Close Button */
+.custom-toast-close-button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.custom-toast-close-button:hover {
+  opacity: 0.7;
+}
+
+/* Default Position (Bottom-Right) */
+.Toastify__toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: auto;
+  max-width: 350px; /* Prevents excessive width */
+}
+
+/* Media Query for Mobile */
+@media (max-width: 768px) {
+  .Toastify__toast-container {
+    bottom: 15px; /* Moves up slightly for better visibility */
+    right: 15px;
+    width: 90% !important; /* Takes up most of the screen width */
+    max-width: none;
+    padding: 0 10px;
   }
-  
+
+  .Toastify__toast {
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    min-height: 50px;
+  }
+
+  .Toastify__toast-body {
+    word-break: break-word;
+    font-size: 13px;
+  }
+
+  .Toastify__close-button {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Extra Small Screens (Phones under 480px) */
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    bottom: 10px; /* Further up for small screens */
+    right: 10px;
+    width: 95% !important; /* Almost full-width for better visibility */
+  }
+
+  .Toastify__toast {
+    font-size: 12px;
+    padding: 8px 12px;
+    min-height: 45px;
+  }
+
+  .custom-toast {
+    padding: 12px;
+    border-radius: 6px;
+  }
+
   .custom-toast-title {
-    font-weight: bold;
+    font-size: 13px;
   }
-  
-  .custom-toast-close-button {
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
+
+  .Toastify__close-button {
+    font-size: 14px;
   }
+}

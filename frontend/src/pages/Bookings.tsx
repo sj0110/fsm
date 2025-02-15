@@ -8,16 +8,16 @@ const Bookings = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
-  
+
   const handleDelete = async (bookingId: string) => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
       toast.error('Authentication Error: Please log in first');
-            setLoading(false);
-            return;
+      setLoading(false);
+      return;
     }
 
-    try{
+    try {
       const response = await fetch(endpoints.bookings.delete(bookingId), {
         method: 'DELETE',
         headers: {
@@ -46,7 +46,7 @@ const Bookings = () => {
       return;
     }
 
-    try{
+    try {
       const response = await fetch(endpoints.bookings.update(bookingId), { // cancelling a customer's booking
         method: 'PUT',
         headers: {
@@ -106,18 +106,26 @@ const Bookings = () => {
     return <div>Loading...</div>;
   }
 
-  return bookings.length > 0 ? (
-    <BookingTable
-      bookings={bookings}
-      onUpdate={fetchBookings}
-      onDelete={handleDelete}
-      onCustomerCancel={handleCustomerCancel}
-    />
-  ) : (
-    <div className="flex items-center justify-center min-h-[200px] text-gray-500 text-sm">
-      No bookings available
+  return (
+    <div className="space-y-6">
+      {/* Heading */}
+      <h2 className="text-lg font-semibold text-gray-700">Bookings Table</h2>
+
+      {/* Booking Table or Empty State */}
+      {bookings.length > 0 ? (
+        <BookingTable
+          bookings={bookings}
+          onUpdate={fetchBookings}
+          onDelete={handleDelete}
+          onCustomerCancel={handleCustomerCancel}
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center min-h-[200px] text-gray-500 text-sm">
+          <p>No bookings available</p>
+        </div>
+      )}
     </div>
-  );  
+  );
 };
 
 export default Bookings;

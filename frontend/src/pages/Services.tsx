@@ -104,9 +104,10 @@ const Services = () => {
 
   return (
     <div className="space-y-6">
-      {/* Admin Only: Add Service Button */}
-      {user?.role === 'admin' && (
-        <div className="flex justify-end">
+      {/* Heading and Add Service Button (Admin Only for Button) */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold text-gray-700">Services Table</h2>
+        {user?.role === 'admin' && (
           <Button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
@@ -114,8 +115,8 @@ const Services = () => {
             <Plus className="h-4 w-4" />
             Add Service
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Service Table or Empty State */}
       {services.length > 0 ? (
@@ -141,6 +142,7 @@ const Services = () => {
         />
       )}
     </div>
+
   );
 };
 

@@ -10,25 +10,51 @@ export interface User {
 }
 
 export interface Service {
-  _id: string; 
+  _id: string;
   name: string;
   description: string;
-  duration: number; // in minutes
+  duration: number;
   price: number;
-  serviceProviderId: string; // Now references an ObjectId
+  serviceProviderId: string;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // Add populated serviceProvider field
+  serviceProvider?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface Booking {
-  _id: string; 
-  customerId: string; // Now references an ObjectId
-  serviceId: string; // Now references an ObjectId
-  serviceProviderId: string; // Now references an ObjectId
+  _id: string;
+  customerId: string;
+  serviceId: string;
+  serviceProviderId: string;
   status: 'pending' | 'confirmed' | 'inProgress' | 'completed' | 'cancelled';
   appointmentDate: Date;
   notes?: string;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
+  
+  // Virtual populated fields
+  customer?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  service?: {
+    _id: string;
+    name: string;
+    description: string;
+    price: number;
+  };
+  serviceProvider?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
 }

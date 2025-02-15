@@ -218,6 +218,7 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
               <p><strong>Description:</strong> {service.description || "No description available"}</p>
               <p><strong>Duration:</strong> {service.duration ? `${service.duration} minutes` : "No duration available"}</p>
               <p><strong>Price:</strong> {service.price ? `$${service.price}` : "No price available"}</p>
+              <p><strong>Service Provider:</strong> {service?.serviceProvider?.name || "N/A"}</p>
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4">No service details available</p>
@@ -251,7 +252,7 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
                 type="number"
                 value={formData.duration}
                 onChange={(e) => handleInputChange("duration", parseInt(e.target.value))}
-                placeholder="Enter duration"
+                placeholder="Duration (minutes)"
                 className="w-full rounded-md border border-gray-300 p-2"
               />
             </div>

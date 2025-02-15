@@ -4,6 +4,13 @@ import { UserModel } from "../models/user.model";
 import { Booking } from "../types";
 
 export class BookingService {
+  // Fields that the bookings and services data is to be populated with.
+  private static readonly populateOptions = [
+    { path: 'customer', select: 'name email' },
+    { path: 'service', select: 'name description price' },
+    { path: 'serviceProvider', select: 'name email' }
+  ];
+
   static async create(bookingData: { serviceId: string; appointmentDate: Date; notes?: string }, customerId: string): Promise<Booking> {
     // Validate customer existence
     const customer = await UserModel.findOne({ _id: customerId, active: true });
@@ -35,33 +42,38 @@ export class BookingService {
       updatedAt: new Date()
     });
   
-    return await booking.save();
+    await booking.save();
+    return await booking.populate(this.populateOptions); // populates the data when fetch call is made with relevant populate options defined using the populate function
   }
-  
-
 
   static async update(id: string, updates: Partial<Booking>): Promise<Booking | null> {
-    return await BookingModel.findOneAndUpdate(
-      { _id: id, active: true },  // Ensuring only active bookings can be updated
-      { ...updates, updatedAt: new Date() }, // Update 'updatedAt' field
+    const booking = await BookingModel.findOneAndUpdate(
+      { _id: id, active: true },
+      { ...updates, updatedAt: new Date() },
       { new: true }
     );
+    
+    return booking ? booking.populate(this.populateOptions) : null;
   }
 
   static async getById(id: string): Promise<Booking | null> {
-    return await BookingModel.findOne({ _id: id, active: true });  // Fetch only active booking
+    return await BookingModel.findOne({ _id: id, active: true })
+      .populate(this.populateOptions);
   }
 
   static async getByCustomer(customerId: string): Promise<Booking[]> {
-    return await BookingModel.find({ customerId, active: true });  // Fetch only active bookings
+    return await BookingModel.find({ customerId, active: true })
+      .populate(this.populateOptions);
   }
 
   static async getAll(): Promise<Booking[]> {
-    return await BookingModel.find({ active: true });  // Fetch only active bookings
+    return await BookingModel.find({ active: true })
+      .populate(this.populateOptions);
   }
 
   static async getByServiceProvider(serviceProviderId: string): Promise<Booking[]> {
-    return await BookingModel.find({ serviceProviderId, active: true });  // Fetch only active bookings
+    return await BookingModel.find({ serviceProviderId, active: true })
+      .populate(this.populateOptions);
   }
 
   static async delete(id: string): Promise<void> {
