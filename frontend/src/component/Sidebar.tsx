@@ -37,7 +37,7 @@ const Sidebar: React.FC = () => {
   const items = user ? sidebarItems[user.role] || [] : []; // Conditional rendering based on user role.
 
   return (
-    <div className="relative">
+    <div className="relative bg-gray-800">
       {/* Navbar for Mobile (Hamburger Menu) */}
       <div className="w-full bg-gray-800 text-white h-14 p-4 md:hidden flex items-center justify-between z-50">
         <button

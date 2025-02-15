@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 navigate('/services'); // Redirect to dashboard after successful login
                 return { success: true };
             }
-            toast.error('Invalid JSON response token');
+            toast.error('Login failed, Please try again.');
             return { success: false, error: 'Invalid JSON response token' };
         } catch (error) {
             toast.error('Login failed. Please try again')

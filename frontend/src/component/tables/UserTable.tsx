@@ -25,7 +25,12 @@ export default function UserTable({
   const columns = [
     { header: 'Name', accessorKey: 'name' },
     { header: 'Email', accessorKey: 'email' },
-    { header: 'Role', accessorKey: 'role' },
+    { header: 'Role', accessorKey: 'role',
+      cell: (role: string) => 
+        role.replace(/([A-Z])/g, ' $1') // Add space before uppercase letters
+            .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
+            .trim()
+     },
   ];
 
   const getActions = () => {

@@ -35,7 +35,8 @@ export function BaseDataTable<T extends { _id: string }>({
   //     navigate(`${basePath}/${item._id}`);
   //   }
   // };
-
+  console.log(columns);
+  console.log(data);
   return (
     <div className="rounded-md border overflow-x-auto">
       <Table className="min-w-full">
