@@ -99,7 +99,15 @@ export const UserModal: React.FC<UserModalProps> = ({
         <div className="space-y-3 p-4 text-gray-700">
           <p className="text-sm"><strong>Name:</strong> {user?.name || "N/A"}</p>
           <p className="text-sm"><strong>Email:</strong> {user?.email || "N/A"}</p>
-          <p className="text-sm"><strong>Role:</strong> {user?.role || "N/A"}</p>
+          <p className="text-sm">
+            <strong>Role:</strong>{" "}
+            {user?.role
+              ? user.role
+                .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
+                .trim()
+              : "N/A"}
+          </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4 p-4">

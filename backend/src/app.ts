@@ -15,7 +15,11 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (
+      !origin || 
+      allowedOrigins.includes(origin) || 
+      /^http:\/\/192\.168\.1\.\d+:5173$/.test(origin)
+    ) {
       callback(null, true);
     } else {
       console.error(`Blocked by CORS: ${origin}`);
@@ -24,6 +28,7 @@ const corsOptions = {
   },
   credentials: true,
 };
+
 
 // Middleware
 app.use(helmet());
