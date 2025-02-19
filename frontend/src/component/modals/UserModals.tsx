@@ -4,36 +4,11 @@ import { SharedModal } from "./SharedModal";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { User } from "@/types";
+import { UserModalProps, ValidationErrors, FormData, UpdateFormData } from "@/types";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from 'react-toastify';
+import bcrypt from 'bcryptjs';
 
-interface UserModalProps {
-  user: User;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-  mode: 'view' | 'edit';
-}
-
-interface ValidationErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-  role?: string;
-}
-
-interface FormData {
-  name: string;
-  email: string;
-  password: string;
-  role: 'customer' | 'serviceProvider' | 'admin';
-}
-
-interface UpdateFormData {
-  name?: string;
-  email?: string;
-  password?: string;
-}
 
 export const UserModal: React.FC<UserModalProps> = ({
   user,
@@ -58,6 +33,7 @@ export const UserModal: React.FC<UserModalProps> = ({
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -73,7 +49,7 @@ export const UserModal: React.FC<UserModalProps> = ({
           return 'Name must be at least 2 characters long';
         }
         break;
-      
+
       case 'email':
         if (!value.trim()) {
           return 'Email is required';
@@ -81,7 +57,7 @@ export const UserModal: React.FC<UserModalProps> = ({
           return 'Please enter a valid email address';
         }
         break;
-      
+
       case 'password':
         if (!user._id && !value) {
           return 'Password is required for new users';
@@ -89,7 +65,7 @@ export const UserModal: React.FC<UserModalProps> = ({
           return 'Password must be at least 6 characters long';
         }
         break;
-      
+
       case 'role':
         if (!user._id && !value) {
           return 'Role is required';
@@ -106,7 +82,7 @@ export const UserModal: React.FC<UserModalProps> = ({
   ) => {
     setFormData(prev => ({ ...prev, [name]: value }));
     setTouched(prev => ({ ...prev, [name]: true }));
-    
+
     if (shouldValidate) {
       const error = validateField(name, value);
       setErrors(prev => ({
@@ -141,14 +117,14 @@ export const UserModal: React.FC<UserModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce((acc, key) => ({
       ...acc,
       [key]: true
     }), {});
     setTouched(allTouched);
-    
+
     if (!validateForm()) {
       return;
     }
@@ -165,10 +141,12 @@ export const UserModal: React.FC<UserModalProps> = ({
           name: formData.name,
           email: formData.email,
         };
-        
+
         // Only include password if it was changed
         if (formData.password) {
-          updateData.password = formData.password;
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash(formData.password, salt);
+          updateData.password = hashedPassword;
         }
 
         response = await fetch(endpoints.users.update(user._id), {
@@ -258,20 +236,29 @@ export const UserModal: React.FC<UserModalProps> = ({
             )}
           </div>
 
-          <div>
+          <div className="relative">
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
-              onChange={(e) => handleChange('password', e.target.value)}
-              onBlur={() => handleBlur('password')}
+              onChange={(e) => handleChange("password", e.target.value)}
+              onBlur={() => handleBlur("password")}
               placeholder={user._id ? "New Password (leave blank to keep current)" : "Password"}
-              className={`w-full border ${touched.password && errors.password ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring focus:ring-blue-200`}
+              className={`w-full border ${touched.password && errors.password ? "border-red-500" : "border-gray-300"
+                } focus:border-blue-500 focus:ring focus:ring-blue-200 pr-10`}
               autoComplete="new-password"
             />
-            {touched.password && errors.password && (
-              <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-            )}
+            <button
+              type="button"
+              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
+          {touched.password && errors.password && (
+            <p className="mt-1 text-xs text-red-500">{errors.password}</p>
+          )}
+
 
           {!user._id && (
             <div>
@@ -303,8 +290,8 @@ export const UserModal: React.FC<UserModalProps> = ({
             </Alert>
           )} */}
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition"
             disabled={isSubmitting}
           >

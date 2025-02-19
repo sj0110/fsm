@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '../context/AuthContext';
 
 const LoginScreen: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const { login } = useAuth();
 
@@ -35,16 +36,23 @@ const LoginScreen: React.FC = () => {
                         />
                     </div>
 
-                    <div>
+                    <div className="relative">
                         <label className="block mb-2 text-sm font-medium text-gray-700">Password</label>
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
                             required
                             autoComplete="new-password"
                         />
+                        <button
+                            type="button"
+                            className="absolute inset-y-13 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
                     </div>
 
                     {error && (
@@ -53,6 +61,7 @@ const LoginScreen: React.FC = () => {
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
+
                     <button
                         type="submit"
                         className="w-full p-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
@@ -62,7 +71,6 @@ const LoginScreen: React.FC = () => {
                 </form>
             </div>
         </div>
-
     );
 };
 
