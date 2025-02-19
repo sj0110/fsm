@@ -22,13 +22,6 @@ const LoginScreen: React.FC = () => {
             <div className="p-6 md:p-8 md:mb-48 bg-white rounded-lg shadow-lg w-full max-w-sm">
                 <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">Login</h2>
 
-                {error && (
-                    <Alert variant="destructive" className="mb-4 flex items-center gap-2">
-                        <AlertCircle className="w-5 h-5 text-red-600" />
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                )}
-
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
@@ -52,6 +45,12 @@ const LoginScreen: React.FC = () => {
                         />
                     </div>
 
+                    {error && (
+                        <Alert variant="destructive" className="mb-4 flex items-center gap-2">
+                            <AlertCircle className="w-5 h-5 text-red-600" />
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
                     <button
                         type="submit"
                         className="w-full p-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"

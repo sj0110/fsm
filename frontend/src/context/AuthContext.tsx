@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 return { success: true };
             }
             toast.error('Login failed, Please try again.');
-            return { success: false, error: 'Invalid JSON response token' };
+            return { success: false, error: 'Login failed, Please try again.' };
         } catch (error) {
             toast.error('Login failed. Please try again')
             return { success: false, error: 'Login failed. Please try again.' };
