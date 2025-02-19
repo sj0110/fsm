@@ -233,6 +233,7 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter service name"
                 className="w-full rounded-md border border-gray-300 p-2"
+                autoComplete='on'
               />
             </div>
             <div className="space-y-2">
@@ -243,6 +244,7 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder="Enter description"
                 className="w-full rounded-md border border-gray-300 p-2"
+                autoComplete='on'
               />
             </div>
             <div className="space-y-2">
@@ -254,6 +256,7 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
                 onChange={(e) => handleInputChange("duration", parseInt(e.target.value))}
                 placeholder="Duration (minutes)"
                 className="w-full rounded-md border border-gray-300 p-2"
+                autoComplete='on'
               />
             </div>
             <div className="space-y-2">
@@ -265,6 +268,7 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
                 onChange={(e) => handleInputChange("price", parseFloat(e.target.value))}
                 placeholder="Enter price"
                 className="w-full rounded-md border border-gray-300 p-2"
+                autoComplete='on'
               />
             </div>
             <div className="space-y-2">
@@ -310,10 +314,12 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
                 id="appointmentDate"
                 type="datetime-local"
                 value={formData.appointmentDate}
+                autoComplete='off'
                 onChange={(e) => handleInputChange("appointmentDate", e.target.value)}
                 min={getMinDateTime()} // Set minimum datetime to current time
                 className={`w-full rounded-md border p-2 ${dateError ? "border-red-500" : "border-gray-300"
-                  }`}
+                  }`
+                }
               />
               {dateError && (
                 <p className="text-sm text-red-500 mt-1">{dateError}</p>

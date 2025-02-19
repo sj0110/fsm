@@ -116,12 +116,14 @@ export const UserModal: React.FC<UserModalProps> = ({
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="Name"
             className="w-full border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
+            autoComplete='on'
           />
           <Input
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             placeholder="Email"
             className="w-full border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
+            autoComplete='on'
           />
           <Input
             type="password"

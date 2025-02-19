@@ -118,6 +118,7 @@ export function BaseDataTable<T extends { _id: string }>({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-8 w-full"
+            autoComplete='on'
           />
         </div>
       </div>
