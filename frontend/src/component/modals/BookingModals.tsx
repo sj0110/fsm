@@ -56,12 +56,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   };
 
   // Handle button click separately to prevent form submission on Cancel
-  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (e.currentTarget.type !== 'submit') {
-      e.preventDefault();
-      onClose();
-    }
-  };
+  // const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   if (e.currentTarget.type !== 'submit') {
+  //     e.preventDefault();
+  //     onClose();
+  //   }
+  // };
 
   return (
     <SharedModal

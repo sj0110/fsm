@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect, useLayoutEffect } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useLayoutEffect } from 'react';
 import { User, AuthContextType } from '../types';
 import { endpoints } from '../config/api';
 import { jwtDecode } from 'jwt-decode';
