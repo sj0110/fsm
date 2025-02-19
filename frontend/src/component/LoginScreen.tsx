@@ -31,6 +31,7 @@ const LoginScreen: React.FC = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
+                            autoComplete='on'
                         />
                     </div>
 
@@ -42,6 +43,7 @@ const LoginScreen: React.FC = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
+                            autoComplete="new-password"
                         />
                     </div>
 

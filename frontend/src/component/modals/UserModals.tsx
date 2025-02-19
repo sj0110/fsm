@@ -125,6 +125,7 @@ export const UserModal: React.FC<UserModalProps> = ({
           />
           <Input
             type="password"
+            autoComplete="new-password"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             placeholder="New Password (leave blank to keep current)"
