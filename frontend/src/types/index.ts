@@ -82,6 +82,14 @@ export interface BaseDataTableProps<T> {
   // onRowClick?: (item: T) => void;
 }
 
+export interface UserModalProps {
+  user: User;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+  mode: 'view' | 'edit';
+}
+
 export interface BookingModalProps {
   booking: Booking;
   isOpen: boolean;
@@ -97,6 +105,26 @@ export interface ServiceModalProps {
   onSuccess?: () => void;
   mode: 'view' | 'edit' | 'book';
   serviceProviders?: User[];
+}
+
+export interface ValidationErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: string;
+}
+
+export interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  role: 'customer' | 'serviceProvider' | 'admin';
+}
+
+export interface UpdateFormData {
+  name?: string;
+  email?: string;
+  password?: string;
 }
 
 export interface SortConfig<T> {

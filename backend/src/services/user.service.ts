@@ -10,11 +10,6 @@ export class UserService {
 
     if (existingUser) {
       if (!existingUser.active) {
-        // Reactivate user and update with new data
-        // if (userData.password) {
-        //   userData.password = await bcrypt.hash(userData.password, 10);
-        // }
-
         Object.assign(existingUser, userData, { active: true, updatedAt: new Date() });
         await existingUser.save();
         return existingUser;
@@ -22,12 +17,6 @@ export class UserService {
       throw new Error("Email already in use by an active user.");
     }
 
-    // Hash password before creating a new user
-    // if (userData.password) {
-    //   userData.password = await bcrypt.hash(userData.password, 10);
-    // }
-
-    // Create a new user
     const newUser = new UserModel({
       ...userData,
       active: true,
@@ -38,17 +27,25 @@ export class UserService {
     return await newUser.save();
   }
 
-
   static async update(userId: string, userData: Partial<User>): Promise<User | null> {
+    // Remove role from update data if it exists
+    const { role, ...updateData } = userData;
+
+    // If someone tries to update the role, throw an error
+    if (role !== undefined) {
+      throw new Error('Role cannot be updated after user creation');
+    }
+
     const updatedUser = await UserModel.findOneAndUpdate(
-      { _id: userId, active: true },  // Only update if the user is active
-      { ...userData, updatedAt: new Date() }, // Update 'updatedAt' field
+      { _id: userId, active: true },
+      { ...updateData, updatedAt: new Date() },
       { new: true }
     );
+
     if (updatedUser) {
       await BookingModel.updateMany(
         { customerId: userId },
-        { customerName: updatedUser.name, updatedAt: new Date() } // Update 'updatedAt' in bookings as well
+        { customerName: updatedUser.name, updatedAt: new Date() }
       );
     }
     return updatedUser;
@@ -67,7 +64,6 @@ export class UserService {
   
     await UserModel.findByIdAndUpdate(userId, { active: false, deletedAt: new Date() });
   }
-  
 
   static async getAll(filters: any = {}): Promise<User[]> {
     return await UserModel.find({ active: true, ...filters });
