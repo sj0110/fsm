@@ -115,7 +115,9 @@ export const UserModal: React.FC<UserModalProps> = ({
 
   const hashPassword = async (password: string) => {
     const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    console.log('Frontend: ' + hashedPassword);
+    return hashedPassword;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

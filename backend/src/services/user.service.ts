@@ -16,7 +16,7 @@ export class UserService {
       }
       throw new Error("Email already in use by an active user.");
     }
-
+    console.log(userData);
     const newUser = new UserModel({
       ...userData,
       active: true,
