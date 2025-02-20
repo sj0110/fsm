@@ -9,7 +9,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from 'react-toastify';
 import bcrypt from 'bcryptjs';
 
-
 export const UserModal: React.FC<UserModalProps> = ({
   user,
   isOpen,
@@ -101,7 +100,6 @@ export const UserModal: React.FC<UserModalProps> = ({
     }));
   };
 
-  // Validate all fields
   const validateForm = () => {
     const newErrors: ValidationErrors = {};
     Object.keys(formData).forEach((key) => {
@@ -115,10 +113,14 @@ export const UserModal: React.FC<UserModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const hashPassword = async (password: string) => {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce((acc, key) => ({
       ...acc,
       [key]: true
@@ -136,17 +138,15 @@ export const UserModal: React.FC<UserModalProps> = ({
       let response;
 
       if (user._id) {
-        // Update existing user - only include necessary fields
+        // Update existing user
         const updateData: UpdateFormData = {
           name: formData.name,
           email: formData.email,
         };
 
-        // Only include password if it was changed
+        // Only hash and include password if it was changed
         if (formData.password) {
-          const salt = await bcrypt.genSalt(10);
-          const hashedPassword = await bcrypt.hash(formData.password, salt);
-          updateData.password = hashedPassword;
+          updateData.password = await hashPassword(formData.password);
         }
 
         response = await fetch(endpoints.users.update(user._id), {
@@ -158,14 +158,19 @@ export const UserModal: React.FC<UserModalProps> = ({
           body: JSON.stringify(updateData),
         });
       } else {
-        // Create new user - include all fields
+        // Create new user - hash password before sending
+        const createData = {
+          ...formData,
+          password: await hashPassword(formData.password), // Always hash password for new users
+        };
+
         response = await fetch(endpoints.users.create, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(createData),
         });
       }
 
@@ -185,6 +190,7 @@ export const UserModal: React.FC<UserModalProps> = ({
     }
   };
 
+  // Rest of the component remains the same...
   return (
     <SharedModal
       isOpen={isOpen}
@@ -259,7 +265,6 @@ export const UserModal: React.FC<UserModalProps> = ({
             <p className="mt-1 text-xs text-red-500">{errors.password}</p>
           )}
 
-
           {!user._id && (
             <div>
               <Select
@@ -289,7 +294,7 @@ export const UserModal: React.FC<UserModalProps> = ({
               </AlertDescription>
             </Alert>
           )} */}
-
+          
           <Button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition"
@@ -302,3 +307,6 @@ export const UserModal: React.FC<UserModalProps> = ({
     </SharedModal>
   );
 };
+          
+
+          

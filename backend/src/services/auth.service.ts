@@ -7,14 +7,14 @@ import { BlacklistedTokenModel } from '../models/blacklistedToken.model';
 
 export class AuthService {
   static async login(email: string, password: string): Promise<string> {
-    console.log(email, password);
+    // console.log(email, password);
     const user = await UserModel.findOne({ email });
     if (!user || !user.active) {
       throw new Error('Invalid credentials');
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log(isValidPassword);
+    // console.log(isValidPassword);
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
