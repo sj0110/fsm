@@ -18,3 +18,8 @@ The technologies used in the project are:
 * [NodeJS](https://nodejs.org/en) - Backend Environment
 * [ExpressJS](https://expressjs.com/) - Backend Framework
 * [TailwindCSS](https://tailwindcss.com/) - CSS Framework Used.
+
+### Default Admin User Credentials
+
+* Username: admin@ex.com
+* Password: hp123
