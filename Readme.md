@@ -1,4 +1,4 @@
-# 🛠️ Service Booking & Management System
+# 🛠️ FSM - Service Booking & Management System
 
 A professional-grade, **scalable**, and **secure** service booking platform designed for customers, service providers, and administrators.  
 The system ensures **seamless multi-platform experiences** with role-based access, real-time communication, and deployment-ready infrastructure.
